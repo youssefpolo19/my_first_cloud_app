@@ -1,0 +1,18 @@
+name: Flutter Cloud Build
+on: [push] # يشتغل عند كل عملية رفع كود
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - run: flutter pub get
+      - run: flutter build apk --debug
+      - name: Save APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: my-app-bundle
+          path: build/app/outputs/flutter-apk/app-debug.apk
