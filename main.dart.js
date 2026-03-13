@@ -55829,7 +55829,7 @@ A.Bf.prototype={
 O(a){return new A.qQ(B.yr,"Routiny Manager",A.a51(B.T,null,B.fv,B.m,null),!1,null)}}
 A.z9.prototype={
 O(a){var s=null
-return new A.t1(new A.oL(B.K_,B.fv,!0,new A.Gd(s,s,1/0,56),s),A.KD(A.afq(A.d([B.yy,B.FU,B.K0,B.FT,B.JZ],t.nA),B.oP),s,s),s)}}
+return new A.t1(new A.oL(B.K0,B.fv,!0,new A.Gd(s,s,1/0,56),s),A.KD(A.afq(A.d([B.yy,B.FU,B.JZ,B.FT,B.K_],t.nA),B.oP),s,s),s)}}
 A.aE.prototype={
 c7(a){var s=a.a,r=this.a,q=s[15]
 r.$flags&2&&A.ac(r)
@@ -59849,6 +59849,8 @@ B.IQ=new A.l(!0,B.B,null,".AppleSystemUIFont",null,null,null,null,null,null,null
 B.J6=new A.l(!0,B.m,null,".AppleSystemUIFont",null,null,null,null,null,null,null,null,null,null,null,null,null,B.e,null,null,null,"blackRedwoodCity labelMedium",null,null,null,null)
 B.GQ=new A.l(!0,B.m,null,".AppleSystemUIFont",null,null,null,null,null,null,null,null,null,null,null,null,null,B.e,null,null,null,"blackRedwoodCity labelSmall",null,null,null,null)
 B.JY=new A.cL(B.Id,B.Hn,B.Ie,B.IA,B.H7,B.He,B.HD,B.Iw,B.HO,B.IT,B.GJ,B.GY,B.IQ,B.J6,B.GQ)
+B.HG=new A.l(!0,B.i,null,null,null,null,22,B.h8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
+B.JZ=new A.lc("\u0623\u0647\u0644\u0627\u064b \u0628\u0643  \u064a\u0648\u0633\u0641 \u0641\u064a \u062a\u0637\u0628\u064a\u0642\u0643 \u0627\u0644\u062c\u062f\u064a\u062f",null,B.HG,null,null)
 B.xk=new A.y(1,0.9607843137254902,0.9607843137254902,0.9607843137254902,B.f)
 B.xf=new A.y(1,0.9333333333333333,0.9333333333333333,0.9333333333333333,B.f)
 B.xa=new A.y(1,0.8392156862745098,0.8392156862745098,0.8392156862745098,B.f)
@@ -59856,10 +59858,8 @@ B.x_=new A.y(1,0.7411764705882353,0.7411764705882353,0.7411764705882353,B.f)
 B.C6=new A.cb([50,B.je,100,B.xk,200,B.xf,300,B.jf,350,B.xa,400,B.x_,500,B.jj,600,B.cn,700,B.bJ,800,B.fm,850,B.fq,900,B.j1],t.bl)
 B.Ci=new A.qS(B.C6,1,0.6196078431372549,0.6196078431372549,0.6196078431372549,B.f)
 B.Ju=new A.l(!0,B.Ci,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.JZ=new A.lc("\u062c\u0627\u0631\u064a \u0628\u0646\u0627\u0621 \u0646\u0633\u062e\u0629 \u0627\u0644\u0648\u064a\u0628 \u0628\u0646\u062c\u0627\u062d...",null,B.Ju,null,null)
-B.K_=new A.lc("Routiny Manager",null,null,null,null)
-B.HG=new A.l(!0,B.i,null,null,null,null,22,B.h8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.K0=new A.lc("\u0623\u0647\u0644\u0627\u064b \u0628\u0643 \u064a\u0627 \u064a\u0648\u0633\u0641 \u0641\u064a \u062a\u0637\u0628\u064a\u0642\u0643 \u0627\u0644\u062c\u062f\u064a\u062f",null,B.HG,null,null)
+B.K_=new A.lc("\u062c\u0627\u0631\u064a \u0628\u0646\u0627\u0621 \u0646\u0633\u062e\u0629 \u0627\u0644\u0648\u064a\u0628 \u0628\u0646\u062c\u0627\u062d...",null,B.Ju,null,null)
+B.K0=new A.lc("Routiny Manager",null,null,null,null)
 B.Mk=new A.Xk(0,"system")
 B.CR=new A.z(0.056,0.024)
 B.CZ=new A.z(0.108,0.3085)
