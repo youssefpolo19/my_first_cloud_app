@@ -1,40 +1,41 @@
-name: Routiny Full Deploy
+name: Routiny Smart Workflow
 on: [push]
 
 permissions:
   contents: write
 
 jobs:
-  build-and-deploy:
+  # وظيفة الويب: تعمل دائماً وبسرعة
+  deploy-web:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
-
       - run: flutter pub get
-
-      # بناء نسخة الويب وتجهيزها للرابط
-      - name: Build Web
-        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
-
-      # هذه الخطوة هي التي ستنشئ فرع gh-pages الذي تبحث عنه
+      - run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build/web
           branch: gh-pages
 
-      # بناء الـ APK للتثبيت على الهاتف
-      - name: Build APK
-        run: flutter build apk --release
-
+  # وظيفة الـ APK: لن تظهر أبداً ولن تبدأ إلا بكلمة build
+  build-apk:
+    if: contains(github.event.head_commit.message, 'build') || contains(github.event.head_commit.message, 'Build')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      - run: flutter pub get
+      - run: flutter build apk --release
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Routiny-Final-APK
+          name: Routiny-App-Release
           path: build/app/outputs/flutter-apk/app-release.apk
