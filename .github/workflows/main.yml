@@ -5,7 +5,7 @@ permissions:
   contents: write
 
 jobs:
-  # وظيفة الويب: تعمل دائماً وبسرعة
+  # 1. وظيفة الويب: تحديث الرابط فورياً
   deploy-web:
     runs-on: ubuntu-latest
     steps:
@@ -14,15 +14,24 @@ jobs:
         with:
           channel: 'stable'
           cache: true
-      - run: flutter pub get
-      - run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+      
+      - name: Install dependencies
+        run: flutter pub get
+
+      # خطوة جوهرية: توليد ملفات الموديلات (Hive) لتجنب أخطاء البناء
+      - name: Generate Hive Adapters
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Build Web
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+      
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build/web
           branch: gh-pages
 
-  # وظيفة الـ APK: لن تظهر أبداً ولن تبدأ إلا بكلمة build
+  # 2. وظيفة الـ APK: تعمل فقط عند كتابة كلمة build في الـ Commit
   build-apk:
     if: contains(github.event.head_commit.message, 'build') || contains(github.event.head_commit.message, 'Build')
     runs-on: ubuntu-latest
@@ -32,10 +41,19 @@ jobs:
         with:
           channel: 'stable'
           cache: true
-      - run: flutter pub get
-      - run: flutter build apk --release
+      
+      - name: Install dependencies
+        run: flutter pub get
+
+      # توليد ملفات الموديلات أيضاً للـ APK
+      - name: Generate Hive Adapters
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Build APK
+        run: flutter build apk --release
+        
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Routiny-App-Release
+          name: Routiny-Final-App
           path: build/app/outputs/flutter-apk/app-release.apk
