@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'core/models/task_model.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/task_provider.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/providers/user_provider.dart';
 import 'core/services/notification_service.dart';
 import 'features/splash/splash_screen.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -38,138 +38,29 @@ class TaskProvider with ChangeNotifier {
   int get pendingTasks => _tasks.where((t) => !t.isDone).length;
   int get overdueTasks => _tasks.where((t) => t.isOverdue).length;
   int get todayTasks => _tasks.where((t) => t.isDueToday).length;
-  double get completionRate => _tasks.isEmpty ? 0 : (completedTasks / totalTasks) * 100;
 
-  // Category Statistics
-  Map<TaskCategory, int> get tasksByCategory {
-    Map<TaskCategory, int> categoryMap = {};
-    for (var category in TaskCategory.values) {
-      categoryMap[category] = _tasks.where((t) => t.category == category).length;
-    }
-    return categoryMap;
+  double get completionRate {
+    if (_tasks.isEmpty) return 0.0;
+    return completedTasks / totalTasks;
   }
 
-  // Priority Statistics
-  Map<TaskPriority, int> get tasksByPriority {
-    Map<TaskPriority, int> priorityMap = {};
-    for (var priority in TaskPriority.values) {
-      priorityMap[priority] = _tasks.where((t) => t.priority == priority && !t.isDone).length;
-    }
-    return priorityMap;
-  }
-
+  // Initialize Hive and load tasks
   Future<void> initializeHive() async {
-    await Hive.initFlutter();
-    
-    if (!Hive.isAdapterRegistered(0)) {
-      Hive.registerAdapter(TaskAdapter());
-    }
-    if (!Hive.isAdapterRegistered(1)) {
-      Hive.registerAdapter(TaskPriorityAdapter());
-    }
-    if (!Hive.isAdapterRegistered(2)) {
-      Hive.registerAdapter(TaskCategoryAdapter());
-    }
-    
-    _taskBox = await Hive.openBox<Task>('tasks');
-    _loadTasks();
-  }
-
-  void _loadTasks() {
-    if (_taskBox != null) {
-      _tasks = _taskBox!.values.toList();
-      notifyListeners();
-    }
-  }
-
-  Future<void> addTask(Task task) async {
-    if (_taskBox != null) {
-      await _taskBox!.put(task.id, task);
-      _tasks.add(task);
+    try {
+      if (!Hive.isAdapterRegistered(0)) Hive.registerAdapter(TaskAdapter());
+      if (!Hive.isAdapterRegistered(1)) Hive.registerAdapter(TaskPriorityAdapter());
+      if (!Hive.isAdapterRegistered(2)) Hive.registerAdapter(TaskCategoryAdapter());
       
-      // Schedule notification if reminder is set
-      if (task.hasReminder && task.reminderTime != null) {
-        await NotificationService().scheduleNotification(
-          id: task.id.hashCode,
-          title: 'تذكير: ${task.title}',
-          body: task.description.isNotEmpty ? task.description : 'حان وقت إنجاز هذه المهمة',
-          scheduledDate: task.reminderTime!,
-        );
-      }
-      
+      _taskBox = await Hive.openBox<Task>('tasks');
+      // الإصلاح: تحديد النوع صراحةً لضمان عمله في الويب والـ APK
+      _tasks = _taskBox!.values.cast<Task>().toList();
       notifyListeners();
+    } catch (e) {
+      debugPrint('Error initializing Hive: $e');
     }
   }
 
-  Future<void> updateTask(Task task) async {
-    if (_taskBox != null) {
-      await _taskBox!.put(task.id, task);
-      int index = _tasks.indexWhere((t) => t.id == task.id);
-      if (index != -1) {
-        _tasks[index] = task;
-        
-        // Update notification
-        if (task.hasReminder && task.reminderTime != null) {
-          await NotificationService().scheduleNotification(
-            id: task.id.hashCode,
-            title: 'تذكير: ${task.title}',
-            body: task.description.isNotEmpty ? task.description : 'حان وقت إنجاز هذه المهمة',
-            scheduledDate: task.reminderTime!,
-          );
-        } else {
-          await NotificationService().cancelNotification(task.id.hashCode);
-        }
-        
-        notifyListeners();
-      }
-    }
-  }
-
-  Future<void> toggleTask(String taskId) async {
-    int index = _tasks.indexWhere((t) => t.id == taskId);
-    if (index != -1) {
-      Task task = _tasks[index];
-      Task updatedTask = task.copyWith(
-        isDone: !task.isDone,
-        completedAt: !task.isDone ? DateTime.now() : null,
-      );
-      await updateTask(updatedTask);
-    }
-  }
-
-  Future<void> deleteTask(String taskId) async {
-    if (_taskBox != null) {
-      await _taskBox!.delete(taskId);
-      _tasks.removeWhere((t) => t.id == taskId);
-      
-      // Cancel notification
-      await NotificationService().cancelNotification(taskId.hashCode);
-      
-      notifyListeners();
-    }
-  }
-
-  Future<void> deleteAllTasks() async {
-    if (_taskBox != null) {
-      await _taskBox!.clear();
-      _tasks.clear();
-      await NotificationService().cancelAllNotifications();
-      notifyListeners();
-    }
-  }
-
-  Future<void> deleteCompletedTasks() async {
-    if (_taskBox != null) {
-      List<Task> completedTasksList = _tasks.where((t) => t.isDone).toList();
-      for (var task in completedTasksList) {
-        await _taskBox!.delete(task.id);
-        await NotificationService().cancelNotification(task.id.hashCode);
-      }
-      _tasks.removeWhere((t) => t.isDone);
-      notifyListeners();
-    }
-  }
-
+  // Setters
   void setFilter(TaskFilter filter) {
     _currentFilter = filter;
     notifyListeners();
@@ -185,6 +76,70 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // CRUD Operations
+  Future<void> addTask(Task task) async {
+    await _taskBox!.put(task.id, task);
+    _tasks = _taskBox!.values.cast<Task>().toList();
+    
+    // Schedule notification if task has reminder
+    if (task.hasReminder && task.reminderTime != null) {
+      await NotificationService().showScheduledNotification(
+        id: task.id.hashCode,
+        title: 'تذكير بمهمة',
+        body: task.title,
+        scheduledDate: task.reminderTime!,
+      );
+    }
+    
+    notifyListeners();
+  }
+
+  Future<void> updateTask(Task task) async {
+    await task.save();
+    _tasks = _taskBox!.values.cast<Task>().toList();
+    
+    // Update notification
+    if (task.hasReminder && task.reminderTime != null) {
+      await NotificationService().showScheduledNotification(
+        id: task.id.hashCode,
+        title: 'تذكير بمهمة',
+        body: task.title,
+        scheduledDate: task.reminderTime!,
+      );
+    } else {
+      await NotificationService().cancelNotification(task.id.hashCode);
+    }
+    
+    notifyListeners();
+  }
+
+  Future<void> toggleTaskStatus(Task task) async {
+    task.isDone = !task.isDone;
+    task.completedAt = task.isDone ? DateTime.now() : null;
+    await task.save();
+    
+    if (task.isDone) {
+      await NotificationService().cancelNotification(task.id.hashCode);
+    }
+    
+    notifyListeners();
+  }
+
+  Future<void> deleteTask(Task task) async {
+    await NotificationService().cancelNotification(task.id.hashCode);
+    await task.delete();
+    _tasks = _taskBox!.values.cast<Task>().toList();
+    notifyListeners();
+  }
+
+  Future<void> deleteAllTasks() async {
+    await NotificationService().cancelAllNotifications();
+    await _taskBox!.clear();
+    _tasks = [];
+    notifyListeners();
+  }
+
+  // Filtering Logic
   List<Task> _getFilteredTasks() {
     switch (_currentFilter) {
       case TaskFilter.all:
@@ -194,14 +149,15 @@ class TaskProvider with ChangeNotifier {
       case TaskFilter.completed:
         return _tasks.where((t) => t.isDone).toList();
       case TaskFilter.today:
-        return _tasks.where((t) => t.isDueToday && !t.isDone).toList();
+        return _tasks.where((t) => t.isDueToday).toList();
       case TaskFilter.overdue:
         return _tasks.where((t) => t.isOverdue).toList();
-      case TaskFilter.high:
+      case TaskFilter.highPriority:
         return _tasks.where((t) => t.priority == TaskPriority.high || t.priority == TaskPriority.urgent).toList();
     }
   }
 
+  // Sorting Logic - الإصلاح الجوهري هنا
   List<Task> _sortTasks(List<Task> taskList) {
     switch (_sortBy) {
       case TaskSortBy.createdDate:
@@ -209,10 +165,13 @@ class TaskProvider with ChangeNotifier {
         break;
       case TaskSortBy.dueDate:
         taskList.sort((a, b) {
-          if (a.dueDate == null && b.dueDate == null) return 0;
-          if (a.dueDate == null) return 1;
-          if (b.dueDate == null) return -1;
-          return a.dueDate!.compareTo(b.dueDate!);
+          // استخدام Casting صريح لتجنب خطأ Object? في GitHub Actions
+          final taskA = a as Task;
+          final taskB = b as Task;
+          if (taskA.dueDate == null && taskB.dueDate == null) return 0;
+          if (taskA.dueDate == null) return 1;
+          if (taskB.dueDate == null) return -1;
+          return taskA.dueDate!.compareTo(taskB.dueDate!);
         });
         break;
       case TaskSortBy.priority:
@@ -225,6 +184,7 @@ class TaskProvider with ChangeNotifier {
     return taskList;
   }
 
+  // Helper Methods
   List<Task> getTasksByCategory(TaskCategory category) {
     return _tasks.where((t) => t.category == category).toList();
   }
@@ -241,20 +201,20 @@ class TaskProvider with ChangeNotifier {
       return t.dueDate!.isAfter(now) && t.dueDate!.isBefore(weekFromNow);
     }).toList();
   }
+
+  Map<TaskPriority, int> getTasksByPriorityCount() {
+    Map<TaskPriority, int> counts = {
+      TaskPriority.low: 0,
+      TaskPriority.medium: 0,
+      TaskPriority.high: 0,
+      TaskPriority.urgent: 0,
+    };
+    for (var task in _tasks) {
+      counts[task.priority] = (counts[task.priority] ?? 0) + 1;
+    }
+    return counts;
+  }
 }
 
-enum TaskFilter {
-  all,
-  active,
-  completed,
-  today,
-  overdue,
-  high,
-}
-
-enum TaskSortBy {
-  createdDate,
-  dueDate,
-  priority,
-  title,
-}
+enum TaskFilter { all, active, completed, today, overdue, highPriority }
+enum TaskSortBy { createdDate, dueDate, priority, title }
