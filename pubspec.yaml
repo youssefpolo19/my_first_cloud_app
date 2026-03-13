@@ -1,5 +1,5 @@
 name: RoutinyManager
-description: RoutinyManager By Youssef
+description: RoutinyManager Ultimate CEO Edition
 publish_to: 'none'
 version: 1.0.0
 
@@ -12,6 +12,7 @@ dependencies:
   shared_preferences: ^2.2.2
   flutter_local_notifications: ^16.3.2
   flutter_svg: ^2.0.9
+  google_fonts: ^6.1.0 # هذا سيجلب لك خطوط آيفون دون أخطاء ملفات
 
 dev_dependencies:
   flutter_test:
@@ -20,4 +21,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  uses-material-3: true
