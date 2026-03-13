@@ -1,35 +1,40 @@
-name: Flutter Cloud Build
+name: Routiny Full Deploy
 on: [push]
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
-      
+
       - run: flutter pub get
-      
-      # بناء الويب مع تحديد المسار الصحيح لـ GitHub Pages
-      - run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
-      
-      # نشر الويب إلى فرع gh-pages
+
+      # بناء نسخة الويب وتجهيزها للرابط
+      - name: Build Web
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+
+      # هذه الخطوة هي التي ستنشئ فرع gh-pages الذي تبحث عنه
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build/web
           branch: gh-pages
 
-      # بناء الـ APK
-      - run: flutter build apk --release
-      - name: Save APK
+      # بناء الـ APK للتثبيت على الهاتف
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Routiny-APK
+          name: Routiny-Final-APK
           path: build/app/outputs/flutter-apk/app-release.apk
