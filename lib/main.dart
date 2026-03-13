@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'app_theme.dart';
+import 'home_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const RoutinyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class RoutinyApp extends StatelessWidget {
+  const RoutinyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Routiny Manager v4')),
-        body: const Center(child: Text('Welcome to Version 4!')),
-      ),
+      debugShowCheckedModeBanner: false,
+      title: 'Routiny Manager',
+      theme: AppTheme.darkTheme, // تفعيل الثيم المطور
+      home: const HomePage(),
     );
   }
 }
