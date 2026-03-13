@@ -1,7 +1,7 @@
-name: my_first_cloud_app
-description: A new Flutter project.
+name: RoutinyManager
+description: RoutinyManager By Youssef
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.0
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -9,7 +9,20 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.2
+  # المكتبات الاحترافية التي طلبتها
+  shared_preferences: ^2.2.2       # للحفظ المحلي (Local Storage)
+  flutter_local_notifications: ^16.3.2 # للنظام الإشعارات
+  flutter_svg: ^2.0.9              # للأيقونات الاحترافية SVG
+
+flutter:
+  uses-material-3: true
+  # إعداد الخط المميز (SF Pro) - يجب تحميل الملف ووضعه في مجلد fonts
+  fonts:
+    - family: SF Pro
+      fonts:
+        - asset: fonts/SF-Pro-Display-Regular.otf
+        - asset: fonts/SF-Pro-Display-Bold.otf
+          weight: 700
 
 dev_dependencies:
   flutter_test:
