@@ -40,7 +40,7 @@ class HomePage extends StatelessWidget {
             const Icon(Icons.task_alt, size: 100, color: Color(0xFF6A1B9A)),
             const SizedBox(height: 20),
             const Text(
-              'أهلاً بك يا يوسف في تطبيقك الجديد',
+              'أهلاً بك  يوسف في تطبيقك الجديد',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             const SizedBox(height: 10),
